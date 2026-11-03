@@ -4,7 +4,7 @@ const {
 } = require("docx");
 const L = require("./lib");
 
-const body = [...require("./part1")(), ...require("./part2")(), ...require("./part3")()];
+const body = [...require("./part1")(), ...require("./part2")(), ...require("./part3")(), ...require("./part4")()];
 
 const cover = [
   new Paragraph({ spacing: { before: 2600 }, children: [] }),
@@ -19,6 +19,7 @@ const cover = [
     "3. Pattern flows explained with diagrams",
     "4. Interview questions and answers (scenario based, 25 questions)",
     "5. Real-time incident scenarios and how to handle them (8 incidents)",
+    "6. Pattern-to-service guide with architecture images and summary table",
   ].map((t) => new Paragraph({ spacing: { after: 60 }, children: [new TextRun({ text: t, size: 24 })] })),
   new Paragraph({ spacing: { before: 1400 }, children: [new TextRun({ text: "Based on the pattern catalog at microservices.io/patterns.", italics: true, size: 20, color: "7F8C8D" })] }),
 ];

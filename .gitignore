@@ -6,3 +6,10 @@ logs/
 *.log
 node_modules/
 docs/generator/img/
+
+# Eclipse / STS
+.classpath
+.project
+.settings/
+.factorypath
+~$*
