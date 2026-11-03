@@ -1,0 +1,6 @@
+server.port: 8085
+spring:
+  application.name: order-query-service
+  config.import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888},classpath:chassis.yml
+  datasource.url: jdbc:h2:mem:querydb;DB_CLOSE_DELAY=-1
+  kafka.consumer.group-id: order-query-service

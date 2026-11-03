@@ -1,0 +1,37 @@
+# Shared defaults imported by every business service (Microservice chassis + Externalized configuration).
+spring:
+  jpa:
+    hibernate.ddl-auto: update
+    open-in-view: false
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
+    consumer:
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    template.observation-enabled: true
+    listener.observation-enabled: true
+
+# Service registry: self registration + client-side discovery
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka}
+  instance:
+    prefer-ip-address: true
+
+# Observability: health check API, application metrics, distributed tracing
+management:
+  endpoints.web.exposure.include: health,info,metrics,prometheus
+  endpoint.health:
+    show-details: always
+    probes.enabled: true
+  tracing.sampling.probability: 1.0
+  zipkin.tracing.endpoint: ${ZIPKIN_URL:http://localhost:9411/api/v2/spans}
+
+# Log aggregation friendly format: trace id + business correlation id on every line
+logging.pattern.level: "%5p [${spring.application.name:-},%X{traceId:-},%X{spanId:-}] [cid=%X{correlationId:-}]"

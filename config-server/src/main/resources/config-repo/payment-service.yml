@@ -1,0 +1,3 @@
+# Served only to payment-service; change and restart (or /actuator/refresh) without rebuilding the jar
+payment:
+  credit-limit: 1000

@@ -1,0 +1,3 @@
+# Served to every client application
+patterns:
+  environment: local-dev
