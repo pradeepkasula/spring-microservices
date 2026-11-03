@@ -223,7 +223,47 @@ module.exports = function () {
     c.push(callout(x.rule));
   });
 
-  c.push(new Paragraph({ heading: "Heading2", pageBreakBefore: true, children: [new TextRun("6." + (PATTERNS.length + 1) + "  Summary table")] }));
+  const q = PATTERNS.length + 1;
+  c.push(h2("6." + q + "  Q&A: What is chassis.yml and how do the other services use it?"));
+  c.push(p("**Answer.** `chassis.yml` is a shared settings file inside the `common` module (`common/src/main/resources/chassis.yml`). It holds the defaults every business service needs, so they are written once instead of in each service."));
+  c.push(...image("pm_chassis_yml.png", "chassis.yml reaches each service through the common jar", 560));
+  c.push(table(["Section", "What it sets"], [
+    ["JPA", "`ddl-auto: update`, `open-in-view: false`."],
+    ["Kafka", "Broker from `KAFKA_BOOTSTRAP` (default `localhost:9092`), string serializers, `acks: all`, consumers start from `earliest`."],
+    ["Eureka", "Registry URL from `EUREKA_URL`, `prefer-ip-address`."],
+    ["Actuator and tracing", "Exposes health, info, metrics, prometheus; samples all traces to `ZIPKIN_URL`."],
+    ["Logging", "Pattern with app name, `traceId`, `spanId` and `correlationId`."],
+  ], [2500, 7246]));
+  c.push(spacer());
+  c.push(...L.bullets([
+    "**How it is linked.** Each service depends on `common` and imports it with `spring.config.import: ...,classpath:chassis.yml`.",
+    "**Overrides.** The service's own `application.yml` sets port, application name, datasource and consumer group, and wins over the shared defaults.",
+    "**Java part.** `ChassisAutoConfiguration` is loaded automatically. It adds the correlation filter, error handler, outbox, idempotent consumer and the four Kafka topics.",
+    "**Not used by** `api-gateway` (reactive app), `config-server` and `discovery-server`.",
+  ]));
+  c.push(callout("**Chassis vs config server.** The chassis ships inside the jar (fixed defaults, change means rebuild). The config server serves values you can change without rebuilding the service."));
+
+  c.push(h2("6." + (q + 1) + "  Q&A: What is config-repo in config-server and how do the other services use it?"));
+  c.push(p("**Answer.** `config-repo` is the folder of configuration files that `config-server` serves (`config-server/src/main/resources/config-repo/`). It is the \"repository\" of the externalized configuration pattern. The server runs with the `native` profile, so it reads these files from the classpath instead of Git."));
+  c.push(...image("pm_configrepo.png", "config-repo files served to the services", 560));
+  c.push(table(["File", "Served to", "Content"], [
+    ["`application.yml`", "Every service", "`patterns.environment: local-dev`"],
+    ["`payment-service.yml`", "Only `payment-service`", "`payment.credit-limit: 1000`"],
+  ], [2700, 2600, 4446]));
+  c.push(spacer());
+  c.push(...L.numbered([
+    "At startup a service reads `spring.config.import: optional:configserver:http://localhost:8888`.",
+    "It asks the server for its application name, for example `GET /payment-service/default`.",
+    "The server merges `application.yml` with `payment-service.yml` and returns the result.",
+    "`PaymentCommandListener` reads it with `@Value(\"${payment.credit-limit:1000}\")` and approves a payment when `amount <= creditLimit`.",
+  ]));
+  c.push(callout([
+    "**Changing a value.** Edit the file, restart `config-server` (the files are in its jar), then restart `payment-service`. `/actuator/refresh` is not exposed here.",
+    "**Fallback.** `optional:` lets a service start when the server is down; it then uses the default after the colon (1000).",
+    "**Production.** Point the server at a Git repository so config is versioned and reviewed like code.",
+  ]));
+
+  c.push(new Paragraph({ heading: "Heading2", pageBreakBefore: true, children: [new TextRun("6." + (PATTERNS.length + 3) + "  Summary table")] }));
   c.push(p("One row per pattern: the services that take part, the purpose, and the architecture."));
   const widths = [1250, 1750, 1800, 4946];
   const head = new TableRow({ tableHeader: true, children: ["Pattern", "Services included", "Purpose", "Architecture"].map((t, i) => textCell(t, widths[i], { bold: true, fill: "1F4E79", color: "FFFFFF" })) });

@@ -126,3 +126,17 @@ pmap("pm_msg.png", "Messaging and remote procedure invocation", [
     ("g", "api-gateway", 1, 3, 14, SVC),
 ], [("o", "k", "async messages"), ("k", "n", "events"), ("k", "q", "events"), ("g", "o", "REST (sync)")], h=3.8,
     note="Sync REST for requests from clients; async messaging between services for the saga and events.")
+
+pmap("pm_chassis_yml.png", "chassis.yml and the chassis module", [
+    ("y", "chassis.yml\nshared settings", 1, 24, 22, LIB), ("a", "ChassisAutoConfiguration\nfilters, outbox, topics", 40, 24, 30, LIB),
+    ("s", "order, inventory, payment,\nnotification, order-query", 8, 7, 34, SVC),
+    ("x", "own application.yml\nport, name, datasource", 54, 7, 25, STORE),
+], [("y", "s", "classpath:chassis.yml"), ("a", "s", "auto-configuration"), ("x", "s", "overrides", True)], h=3.8,
+    note="api-gateway, config-server and discovery-server do not use the chassis.")
+
+pmap("pm_configrepo.png", "config-repo served by config-server", [
+    ("a", "application.yml\nall clients", 1, 26, 18, STORE), ("b", "payment-service.yml\ncredit-limit: 1000", 1, 12, 18, STORE),
+    ("cs", "config-server :8888\nnative profile", 29, 19, 20, SERVER),
+    ("p", "payment-service\n@Value payment.credit-limit", 56, 26, 23, SVC), ("o", "other services\nshared values only", 56, 10, 23, SVC),
+], [("a", "cs", "read"), ("b", "cs", "read"), ("cs", "p", "merged config"), ("cs", "o", "application.yml")], h=4.0,
+    note="Services ask by name: GET /payment-service/default.")
